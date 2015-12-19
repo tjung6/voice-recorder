@@ -1,0 +1,381 @@
+package com.deitel.voicerecorder;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import android.app.AlertDialog;
+import android.app.ListActivity;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnCreateContextMenuListener;
+import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.Toast;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.TextView;
+import android.widget.ToggleButton;
+import android.view.View.OnLongClickListener;
+
+public class SavedRecordings extends ListActivity {	
+   private SavedRecordingsAdapter savedRecordingsAdapter; // SavedRecordingsAdapter displays list of saved recordings in ListView
+   private MediaPlayer mediaPlayer; // Plays saved recordings
+   private SeekBar progressSeekBar; // Controls audio playback
+   private Handler handler; // Updates SeekBar thumb position
+   private TextView nowPlayingTextView; // Displays audio name
+   private ToggleButton playPauseButton; // Play & pause button 
+   TextView tv; 
+   // public final static int NOTIFICATION_ID = 62343234;
+   
+   @Override
+   public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.saved_recordings); // This will show the page with ListView 
+      
+      // Get ListView and set its listeners and adapter 
+      ListView listView = getListView();
+      savedRecordingsAdapter = new SavedRecordingsAdapter(this, new ArrayList<String>(Arrays.asList(getExternalFilesDir(null).list())));
+      listView.setAdapter(savedRecordingsAdapter);
+      
+      listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+          public boolean onItemLongClick(AdapterView<?> parent, final View v, int position, long id) { 
+        	  tv = (TextView) findViewById(R.id.nameTextView); 
+
+       		// OnClickListener listView = new OnClickListener() {
+       		// @Override
+            // public boolean onClick(final View v) {
+               // create an input dialog to get recording name from user
+               //AlertDialog.Builder confirmDialog = new AlertDialog.Builder(SavedRecordings.this);
+               //confirmDialog.setMessage("Rename Audio File?"); 
+
+               //confirmDialog.setPositiveButton("Rename", new DialogInterface.OnClickListener() { 
+            	 //  public void onClick(DialogInterface dialog, int which) {
+	    				  // create a SlideshowInfo for a new slideshow
+            		   LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+          	         
+     	    		  // Inflate name_edittext.xml to create an EditText
+     	    		  View view = inflater.inflate(R.layout.name_edittext, null);
+            		   	  EditText nameEditText = (EditText) view.findViewById(R.id.nameEditText); 
+	    				  String name = nameEditText.getText().toString().trim();
+	                  
+	    				  // If the audio file name entered is longer than 0 characters long 
+	    				  if (name.length() != 0) {
+	    					  // create Files for temp file and new file name
+	    					  File tempFile = (File) v.getTag();
+	    					  File newFile;
+	    					  String type=Recorder_preferences.getRecordType(SavedRecordings.this);
+	    					  if(type.compareTo("audio/amr")!=0) {
+	    						  newFile = new File(getExternalFilesDir(null).getAbsolutePath() + File.separator + name + ".3gpp");
+	    					  } else {
+	    						  newFile = new File(getExternalFilesDir(null).getAbsolutePath() + File.separator + name + ".amr");
+	    					  }
+	                     
+	    					  tempFile.renameTo(newFile); // rename the file
+	    				  } 
+	    				  else // Display message that  must have a name
+	    				  {	
+	    					  Toast message = Toast.makeText(SavedRecordings.this, R.string.message_name, Toast.LENGTH_SHORT);
+		                      message.setGravity(Gravity.CENTER, message.getXOffset() / 2, message.getYOffset() / 2);
+		                      message.show(); // Display the Toast
+	    				  } // end else
+	    			      return true; 
+
+	    			  } // end method onClick
+          
+                  } // end anonymous inner class
+               ); // end call to setPositiveButton
+               //confirmDialog.setNegativeButton(R.string.button_cancel, null);
+               //confirmDialog.show();
+			//return true;  
+               
+          //} 
+          //return true; 
+         // }
+     // });
+      handler = new Handler(); // updates SeekBar thumb position
+      
+      
+         
+      // Get other GUI components and register listeners
+      progressSeekBar = (SeekBar) findViewById(R.id.progressSeekBar);
+      progressSeekBar.setOnSeekBarChangeListener(progressChangeListener);
+      playPauseButton = (ToggleButton) findViewById(R.id.playPauseButton);
+      playPauseButton.setOnCheckedChangeListener(playPauseButtonListener);
+      nowPlayingTextView = (TextView) findViewById(R.id.nowPlayingTextView);      
+      
+      listView.setOnCreateContextMenuListener(new OnCreateContextMenuListener()  {    	   
+	      @Override
+		  public void onCreateContextMenu(ContextMenu menu, View arg1, ContextMenuInfo arg2) {
+	    	  menu.setHeaderTitle("Operation");      
+	          menu.add(0, 0, 0,"Play" );   
+	          menu.add(0, 1, 0,"Delete");
+	      }
+   	  });
+   }
+   
+   // Creates MediaPlayer object
+   @Override
+   protected void onResume()
+   {
+      super.onResume();
+      mediaPlayer = new MediaPlayer(); // Used to play recordings 
+   } 
+
+   // Release the MediaPlayer object
+   @Override
+   protected void onPause()
+   {
+      super.onPause();
+      if (mediaPlayer != null) {
+         handler.removeCallbacks(updater); // stop updating GUI
+         mediaPlayer.stop(); // stop audio playback
+         mediaPlayer.release(); // release MediaPlayer resources
+         playPauseButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.play2));
+         mediaPlayer = null; 
+      } 
+   } 
+
+   // Class for implementing the "ViewHolder pattern" for better ListView performance
+   private static class ViewHolder
+   {
+      TextView nameTextView; 
+      ImageView emailButton; 
+      ImageView deleteButton;
+      // ImageView shareButton; 
+   } 
+   
+   // ArrayAdapter displaying recording names and delete buttons
+   public class SavedRecordingsAdapter extends ArrayAdapter<String>
+   {
+      private List<String> items; // list of file names
+      private LayoutInflater inflater;
+      public SavedRecordingsAdapter(Context context, List<String> items)
+      {
+         super(context, -1, items); // -1 indicates we're customizing view
+         Collections.sort(items, String.CASE_INSENSITIVE_ORDER);
+         this.items = items;
+         inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+      } // end SavedRecordingsAdapter constructor
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent)
+      {
+         ViewHolder viewHolder; // holds references to current item's GUI
+         
+         // if convertView is null, inflate GUI and create ViewHolder;
+         // otherwise, get existing ViewHolder
+         if (convertView == null)
+         {
+            convertView = inflater.inflate(R.layout.saved_recordings_row, null);
+            
+            // set up ViewHolder for this ListView item
+            viewHolder = new ViewHolder();
+            viewHolder.nameTextView = (TextView) convertView.findViewById(R.id.nameTextView);
+            // viewHolder.shareButton = (ImageView) convertView.findViewById(R.id.emailButton);
+            viewHolder.emailButton =  (ImageView) convertView.findViewById(R.id.emailButton);
+                 viewHolder.deleteButton = (ImageView) convertView.findViewById(R.id.deleteButton);
+
+            
+            convertView.setTag(viewHolder); // store as View's tag
+         } // end if
+         else // get the ViewHolder from the convertView's tag
+            viewHolder = (ViewHolder) convertView.getTag();
+         
+         // Gets and display name of recording file 
+         String item = items.get(position);
+         viewHolder.nameTextView.setText(item); 
+         viewHolder.nameTextView.setTag(item);  
+         
+         viewHolder.emailButton.setTag(item);
+         viewHolder.emailButton.setOnClickListener(emailButtonListener);
+         viewHolder.deleteButton.setTag(item);
+         viewHolder.deleteButton.setOnClickListener(deleteButtonListener);
+         return convertView;
+      } // end method getView
+   } // end class SavedRecordingsAdapter
+
+   // If you long click the audio file name it will perform deletion of the audio 
+     
+   // Allows sharing of audio file 
+   OnClickListener emailButtonListener = new OnClickListener() 
+   {
+      @Override
+      public void onClick(final View v) 
+      {
+         // get Uri to the recording's location on disk
+    	 File mypath = (new File(getExternalFilesDir(null), (String) v.getTag())); 
+         Uri data = Uri.fromFile(mypath);
+         Intent intent = new Intent(Intent.ACTION_SEND);
+         String type = Recorder_preferences.getRecordType(SavedRecordings.this);
+         
+         // Shares to QQ & email??? 
+         if(type.compareTo("audio/amr") != 0)
+        	 intent.setType("audio/3gpp");
+         else intent.setType("audio/amr");
+         	intent.putExtra(Intent.EXTRA_STREAM,Uri.parse("file://" + mypath));
+         startActivity(Intent.createChooser(intent, "Share Sound File"));
+         
+         /*// Shares through email 
+         intent.setType("text/plain");
+         intent.putExtra(Intent.EXTRA_STREAM, data);
+         intent.putExtra(Intent.ACTION_ATTACH_DATA, data); 
+         startActivity(Intent.createChooser(intent, getResources().getString(R.string.emailPickerTitle)));
+         */
+      } 
+   }; 
+
+   // deletes the specified recording
+   OnClickListener deleteButtonListener = new OnClickListener() 
+   {
+      @Override
+      public void onClick(final View v) 
+      {
+         // create an input dialog to get recording name from user
+         AlertDialog.Builder confirmDialog = 
+            new AlertDialog.Builder(SavedRecordings.this);
+         // confirmDialog.setTitle(R.string.dialog_confirm_title); 
+         confirmDialog.setMessage(R.string.dialog_confirm_message); 
+
+         confirmDialog.setPositiveButton(R.string.button_delete, 
+            new DialogInterface.OnClickListener()
+            { 
+               public void onClick(DialogInterface dialog, int which) 
+               {
+                  File fileToDelete = new File(getExternalFilesDir(null)+
+                     File.separator + (String) v.getTag()); 
+                  fileToDelete.delete();
+                  savedRecordingsAdapter.remove((String) v.getTag());
+               } // end method onClick 
+            } // end anonymous inner class
+         ); // end call to setPositiveButton
+         
+         confirmDialog.setNegativeButton(R.string.button_cancel, null);
+         confirmDialog.show();         
+      } // end method onClick
+   }; // end OnClickListener
+   
+   @Override
+   protected void onListItemClick(ListView l, View v, int position, long id) 
+   {
+      super.onListItemClick(l, v, position, id);
+      playPauseButton.setChecked(true); // checked state
+      handler.removeCallbacks(updater); // stop updating progressSeekBar
+      
+      // get the item that was clicked 
+      TextView nameTextView = ((TextView) v.findViewById(R.id.nameTextView));
+      String name = nameTextView.getText().toString(); 
+      
+      // get path to file
+      String filePath = getExternalFilesDir(null).getAbsolutePath() + File.separator + name;
+      
+      // set nowPlayingTextView's text
+      //Toast.makeText(this, getResources().getString(R.string.now_playing_prefix)+ " " + name, Toast.LENGTH_SHORT).show(); 
+      nowPlayingTextView.setText(getResources().getString(R.string.now_playing_prefix) + " " + name);
+      
+      try 
+      {
+         // set the MediaPlayer to play the file at filePath
+         mediaPlayer.reset(); // reset the MediaPlayer
+         mediaPlayer.setDataSource(filePath);
+         mediaPlayer.prepare(); // prepare the MediaPlayer
+         progressSeekBar.setMax(mediaPlayer.getDuration());
+         progressSeekBar.setProgress(0);
+         mediaPlayer.setOnCompletionListener(
+            new OnCompletionListener()
+            {
+               @Override
+               public void onCompletion(MediaPlayer mp)
+               {
+                  playPauseButton.setChecked(false); // unchecked state
+                  mp.seekTo(0);
+               } // end method onCompletion
+            } // end OnCompletionListener
+         ); // end call to setOnCompletionListener
+         mediaPlayer.start();
+         playPauseButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.pause2));
+         updater.run(); // start updating progressSeekBar
+      } // end try
+      catch (Exception e) 
+      {
+         Log.e(SavedRecordings.class.getName(), e.toString()); // log exceptions
+      } // end catch
+   } // end method onListItemClick   
+   
+   // reacts to events created when the Seekbar's thumb is moved
+   OnSeekBarChangeListener progressChangeListener = new OnSeekBarChangeListener() 
+      {
+         @Override
+         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) 
+         {
+            if (fromUser)
+               mediaPlayer.seekTo(seekBar.getProgress());
+         }  
+   
+         @Override
+         public void onStartTrackingTouch(SeekBar seekBar) 
+         {
+         } 
+   
+         @Override
+         public void onStopTrackingTouch(SeekBar seekBar) 
+         {
+         } 
+      }; // end OnSeekBarChangeListener
+
+   // Updates SeekBar every second
+   Runnable updater = new Runnable() {
+      @Override
+      public void run() {
+         if (mediaPlayer.isPlaying()) {
+            // update the SeekBar's position
+            progressSeekBar.setProgress(mediaPlayer.getCurrentPosition());
+            handler.postDelayed(this, 100);
+         } // end if
+      } // end method run
+   }; // end Runnable
+
+   // Called when the user touches the "Play" Button
+   // Toggles play/pause
+   OnCheckedChangeListener playPauseButtonListener = new OnCheckedChangeListener() {
+         @Override
+         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if (isChecked) {
+               mediaPlayer.start(); // start the MediaPlayer
+               updater.run(); // start updating progress SeekBar
+               playPauseButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.pause2));
+            } else {
+               mediaPlayer.pause(); // pause the MediaPlayer
+               playPauseButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.play2));
+            }
+         } // end method onCheckedChanged
+      }; // end OnCheckedChangedListener
+} // end class SavedRecordings

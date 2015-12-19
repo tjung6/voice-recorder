@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="prefEntries_recordType">
+        <item>amr</item>
+        <item>3gpp</item>
+    </string-array>
+    
+    <string-array translatable="false" name="prefValues_recordType">
+        <item>audio/amr</item>
+        <item>audio/3gpp</item>
+    </string-array>
+    
+    <string name="open_file_explorer">Files</string>
+    <string name="preferences_title">Settings</string>
+    
+    <string name="pref_title_record_type">Audio File Type</string>
+        
+    <string name="prefDefault_recordType">audio/3gpp</string>
+</resources>

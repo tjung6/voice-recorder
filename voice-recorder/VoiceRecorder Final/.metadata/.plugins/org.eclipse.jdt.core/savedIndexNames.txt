@@ -1,0 +1,2 @@
+INDEX VERSION 1.127+C:\Users\Terry\Desktop\VoiceRecorder Final\.metadata\.plugins\org.eclipse.jdt.core
+1538745615.index

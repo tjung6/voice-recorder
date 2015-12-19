@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory>
+        <!-- android:dialogTitle="@string/prefDialogTitle_recordType" -->
+        <ListPreference
+            android:key="pref_key_record_type"
+            android:title="@string/pref_title_record_type"
+            android:entries="@array/prefEntries_recordType"
+            android:entryValues="@array/prefValues_recordType"
+            android:defaultValue="@string/prefDefault_recordType" />
+        <!-- android:summary="@string/pref_summary_enable_high_quality" -->
+        <CheckBoxPreference
+            android:key="pref_key_enable_high_quality"
+            android:title="@string/pref_title_enable_high_quality"
+            android:summary="Higher quality audio will require more space"
+            android:defaultValue="true" />
+        <ListPreference 
+            android:key="pref_key_record_speed"
+            android:title="@string/pref_title_record_speed"
+            android:summary="Sets spinning speed or record button"
+            android:entries="@array/prefEntries_recordSpeed"
+            android:entryValues="@array/prefValues_recordSpeed"
+            android:defaultValue="@string/prefDefault_recordSpeed"/>
+    </PreferenceCategory>
+</PreferenceScreen>

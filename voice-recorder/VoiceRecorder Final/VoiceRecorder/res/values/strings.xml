@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Voice Recorder</string>
+    <string name="now_playing_prefix">NOW PLAYING: </string>
+    <string name="emailPickerTitle">Share Recording via Email</string>
+    <string name="dialog_confirm_message">Delete Recording?</string>
+    <string name="dialog_set_name_title">Audio Name</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_pause">Pause</string>
+    <string name="button_play">Play</string>
+    <string name="button_record">Record</string>
+    <string name="button_save">Save</string>
+    <string name="button_stop">Stop</string>
+    <string name="button_view_saved_recordings">View Saved Recordings</string>
+    <string name="message_name">Missing Audio Name</string>
+    <string name="title_section1">Record</string>
+    <string name="title_section2">Files</string>
+    <string name="action_settings">Settings</string>
+    <!-- add for libra begin -->
+    <string name="default_record_name">Untitled</string>
+    <string name="overwrite_dialog_title">%s already exists. Overwrite it?</string>
+    
+    <!-- add for libra end -->
+</resources>

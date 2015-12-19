@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <string-array translatable="false" name="prefValues_recordSpeed">
+        <item>0</item>
+        <item>2500</item>
+        <item>500</item>
+    </string-array>
+    
+    <string-array translatable="false" name="prefEntries_recordSpeed">
+        <item>Off</item>
+        <item>Slow</item>
+        <item>Fast</item>
+    </string-array>
+    
+    <string name="prefDefault_recordSpeed">2500</string>
+    <string name="pref_title_record_speed">Record Spin Speed</string>
+        
+</resources>
+<!-- audio_type -->

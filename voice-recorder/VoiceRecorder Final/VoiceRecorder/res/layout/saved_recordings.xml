@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000"
+    android:orientation="vertical"
+    android:paddingLeft="15dp"
+    android:paddingRight="10dp" >
+
+   <TextView
+       android:id="@+id/nowPlayingTextView"
+       android:layout_width="306dp"
+       android:layout_height="wrap_content"
+       android:gravity="center"
+       android:keepScreenOn="true"
+       android:textSize="20sp" />
+      
+   <LinearLayout 
+       android:layout_width="match_parent" 
+      android:layout_height="wrap_content" 
+      android:layout_marginBottom="25dp" 
+      android:layout_marginTop="25dp">
+      
+      <ToggleButton
+          android:id="@+id/playPauseButton"
+          android:layout_width="45dp"
+          android:layout_height="45dp"
+          android:layout_marginRight="5dp"
+          android:background="@drawable/play2"
+          android:textOff=""
+          android:textOn="" />
+      
+      <SeekBar android:id="@+id/progressSeekBar" 
+         android:layout_height="wrap_content" 
+         android:layout_gravity="center" 
+         android:layout_width="match_parent"/>
+   </LinearLayout>
+   
+   <ListView 
+       android:id="@android:id/list"
+      android:layout_margin="5dp" 
+      android:layout_width="match_parent" 
+      android:layout_height="match_parent" 
+      android:layout_weight="1"/>
+</LinearLayout>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- main -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginRight="-2dp"
+    android:background="@drawable/bg2"
+    android:clickable="false"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/tV_timer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:gravity="center|center_vertical"
+        android:text="0:00"
+        android:textColor="#FFF"
+        android:textSize="60sp" />
+    
+    
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+
+        <com.deitel.voicerecorder.WheelImageView
+            android:id="@+id/vinyl"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/vinylrecord_idle" />
+
+        <ToggleButton
+            android:id="@+id/recordButton"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:background="@drawable/recbutton"
+            android:keepScreenOn="true"
+            android:paddingTop="15dp"
+            android:textOff=""
+            android:textOn="" />
+
+        <RelativeLayout
+            android:id="@+id/vumeter_layout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+        </RelativeLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/addnew" />
+
+        <ToggleButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/play1"
+            android:textOff=""
+            android:textOn="" />
+
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/delete" />
+
+    </LinearLayout>
+
+</LinearLayout>
